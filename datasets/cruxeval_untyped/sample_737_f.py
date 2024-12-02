@@ -1,0 +1,15 @@
+def f(nums):
+    """"""
+    ### Canonical solution below ###
+    counts = 0
+    for i in nums:
+        if str(i).isdecimal():
+            if counts == 0:
+                counts += 1
+    return counts
+
+def check(candidate):
+    assert candidate([0, 6, 2, -1, -2]) == 1
+
+def test_check():
+	check(f)
