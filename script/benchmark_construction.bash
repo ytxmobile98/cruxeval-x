@@ -1,3 +1,6 @@
+CURDIR=$(dirname "$(realpath "$0")")
+source "$CURDIR/config.env"
+
 echo change_data_format
 
 python dataset_build/0_change_data_format.py \
@@ -29,9 +32,9 @@ python dataset_build/3_generating.py \
     --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
     --tmp 0.2 \
     --sample_num 5 \
-    --api_key your api key \
-    --base_url your base url \
-    --model_name your model name \
+    --api_key "$API_KEY" \
+    --base_url "$API_BASE_URL" \
+    --model_name "$MODEL_NAME" \
     --tests_dir ./datasets/cruxeval_preprocessed \
     --python_dir ./datasets/cruxeval \
     --example_dir ./MutiPL-E/evaluation/test_inputs \
@@ -44,9 +47,9 @@ echo 4_repair_generating
 python dataset_build/4_repair_generating.py \
     --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
     --tmp 0 \
-    --api_key your api key \
-    --base_url your base url \
-    --model_name your model name \
+    --api_key "$API_KEY" \
+    --base_url "$API_BASE_URL" \
+    --model_name "$MODEL_NAME" \
     --tests_dir ./datasets/cruxeval_preprocessed \
     --python_dir ./datasets/cruxeval \
     --example_dir ./MutiPL-E/evaluation/test_inputs \
@@ -60,7 +63,7 @@ echo 5_iterating
 python dataset_build/5_iterating.py \
     --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
     --tmp 0.8 \
-    --model_name deepseek-coder-33b-instruct \
+    --model_name "$MODEL_NAME" \
     --model_dir ./model \
     --max_iter 50 \
     --tot_data_num 800 \
@@ -76,7 +79,7 @@ echo 6_repair_iterating
 python dataset_build/6_repair_iterating.py \
     --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
     --tmp 0 \
-    --model_name deepseek-coder-33b-instruct \
+    --model_name "$MODEL_NAME" \
     --model_dir ./model \
     --tot_data_num 800 \
     --tests_dir ./datasets/cruxeval_preprocessed \
@@ -91,9 +94,9 @@ echo 7_mutiturn_repair
 python dataset_build/7_mutiturn_repair.py \
     --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
     --tmp 0 \
-    --api_key your api key \
-    --base_url your base url \
-    --model_name your model name \
+    --api_key "$API_KEY" \
+    --base_url "$API_BASE_URL" \
+    --model_name "$MODEL_NAME" \
     --tot_data_num 800 \
     --tests_dir ./datasets/cruxeval_preprocessed \
     --right_dir ./datasets/cruxeval_iterated_repaired \
