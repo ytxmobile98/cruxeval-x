@@ -1,7 +1,7 @@
 CURDIR=$(dirname "$(realpath "$0")")
 source "$CURDIR/config.env"
 
-python dataset_build/1_generating.py \
+python dataset_build/3_generating.py \
     --langs "$LANGS" \
     --tmp 0.2 \
     --sample_num 5 \
