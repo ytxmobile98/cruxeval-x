@@ -1,3 +1,6 @@
+CURDIR=$(dirname "$(realpath "$0")")
+source "$CURDIR/config.env"
+
 python dataset_build/6_repair_iterating.py \
     --langs "$LANGS" \
     --tmp 0 \
