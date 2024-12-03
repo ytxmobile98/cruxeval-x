@@ -2,7 +2,7 @@ CURDIR=$(dirname "$(realpath "$0")")
 source "$CURDIR/config.env"
 
 python inference/infer_openai.bash \
-    --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
+    --langs "$LANGS" \
     --tmp 0 \
     --api_key "$API_KEY" \
     --base_url "$API_BASE_URL" \

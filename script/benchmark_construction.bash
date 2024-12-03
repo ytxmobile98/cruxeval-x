@@ -20,7 +20,7 @@ echo 1_type_annotate done
 echo 2_preprocess
 
 python dataset_build/2_preprocess.py \
-    --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
+    --langs "$LANGS" \
     --input_dir ./datasets/cruxeval \
     --output_dir ./datasets/cruxeval_preprocessed \
 
@@ -29,7 +29,7 @@ echo 2_preprocess done
 echo 3_generating
 
 python dataset_build/3_generating.py \
-    --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
+    --langs "$LANGS" \
     --tmp 0.2 \
     --sample_num 5 \
     --api_key "$API_KEY" \
@@ -45,7 +45,7 @@ echo 3_generating done
 echo 4_repair_generating
 
 python dataset_build/4_repair_generating.py \
-    --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
+    --langs "$LANGS" \
     --tmp 0 \
     --api_key "$API_KEY" \
     --base_url "$API_BASE_URL" \
@@ -61,7 +61,7 @@ echo 4_repair_generating done
 echo 5_iterating
 
 python dataset_build/5_iterating.py \
-    --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
+    --langs "$LANGS" \
     --tmp 0.8 \
     --model_name "$MODEL_NAME" \
     --model_dir ./model \
@@ -77,7 +77,7 @@ echo 5_iterating done
 echo 6_repair_iterating
 
 python dataset_build/6_repair_iterating.py \
-    --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
+    --langs "$LANGS" \
     --tmp 0 \
     --model_name "$MODEL_NAME" \
     --model_dir ./model \
@@ -92,7 +92,7 @@ echo 6_repair_iterating done
 echo 7_mutiturn_repair
 
 python dataset_build/7_mutiturn_repair.py \
-    --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
+    --langs "$LANGS" \
     --tmp 0 \
     --api_key "$API_KEY" \
     --base_url "$API_BASE_URL" \

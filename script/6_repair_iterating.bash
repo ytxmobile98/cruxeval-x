@@ -1,5 +1,5 @@
 python dataset_build/6_repair_iterating.py \
-    --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
+    --langs "$LANGS" \
     --tmp 0 \
     --model_name deepseek-coder-33b-instruct \
     --model_dir ./model \

@@ -2,7 +2,7 @@ CURDIR=$(dirname "$(realpath "$0")")
 source "$CURDIR/config.env"
 
 python dataset_build/1_generating.py \
-    --langs "['java', 'cpp', 'cs', 'd', 'go', 'jl', 'js', 'lua', 'php', 'pl', 'py', 'r', 'rb', 'rkt', 'rs', 'scala', 'sh', 'swift', 'ts']" \
+    --langs "$LANGS" \
     --tmp 0.2 \
     --sample_num 5 \
     --api_key "$API_KEY" \
