@@ -79,8 +79,8 @@ def gpt_response(message,api_key,model_name,tmp=0,stop=[],base_url="",max_tokens
     if base_url == "":
         client = OpenAI(api_key=api_key)
     else:
-        client = OpenAI(api_key=api_key,base_url=base_url)
-        
+        client = OpenAI(api_key=api_key, base_url=base_url)
+
     flag = 0
     while flag != 1:
         try:
@@ -92,7 +92,7 @@ def gpt_response(message,api_key,model_name,tmp=0,stop=[],base_url="",max_tokens
                 max_tokens=max_tokens,
             )
             flag = 1
-            
+
         except Exception as err:
             print("error : ",err)
             flag = 0

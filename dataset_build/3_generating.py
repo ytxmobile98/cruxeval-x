@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.add_argument("--python_dir", type=str, default="./datasets/cruxeval")
     parser.add_argument("--example_dir", type=str, default="./MutiPL-E/evaluation/test_inputs")
     parser.add_argument("--output_dir", type=str, default="./datasets/cruxeval_generated")
-        
+
     args = parser.parse_args()
 
     if not os.path.exists(args.output_dir):
@@ -40,14 +40,14 @@ if __name__ == '__main__':
             # Append stop token if not already present
             if "\n```" not in stop_tokens[lang][-1]:
                 example_output += stop_tokens[lang][-1]
-        
+
         # Number of samples to generate
         sample_num = args.sample_num
-        
+
         # Load the dataset
         ds_tests = load_dataset("json", data_files=f"{args.tests_dir}/{lang}.jsonl")["train"]
         ds_python = args.python_dir
-        
+
         tot_res = []
         # Iterate over the tests
         for i in tqdm(range(len(ds_tests)),total=len(ds_tests)):
@@ -88,7 +88,7 @@ if __name__ == '__main__':
                     # Append error details if execution fails
                     cur_res["error"].append({"id":ds_tests[i]['id'],
                                             "code": res,
-                                            "error": exec_output["status"], 
+                                            "error": exec_output["status"],
                                             "error_message": exec_output["stderr"],
                                             "error_output": exec_output["stdout"]})
             # Append the current result to the total results list
