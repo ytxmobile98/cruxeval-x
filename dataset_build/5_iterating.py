@@ -3,12 +3,12 @@ import json
 from transformers import AutoTokenizer
 from pathlib import Path
 import argparse
-import sys
+from typing import Any
 from datasets import load_dataset
 from prompt import gen_prompt_openai
 from untils import extract_python_code_with_test, get_examples, output_gpt_prompt, eval_code
 from untils import lang_map, iterating_stops
-import json
+import requests
 from tqdm import tqdm
 
 
@@ -36,6 +36,39 @@ def gen_result(examples, tokenizer, llm, lang, tmp, model: str):
     for i in range(len(examples)):
         examples[i]['generation'] = outputs[i].outputs[0].text
     return examples
+
+
+def gen_result_http(prompts: list[Any], url: str, model: str) -> list[Any]:
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    results = []
+    for prompt in prompts:
+        data = {
+            "model": model,
+            "messages": [prompt],  # [ { "role": "XXX", "content": "XXX" } ]
+        }
+        res = requests.post(url, data=json.dumps(data), headers=headers)
+
+        result = {
+            "task_id": prompt["task_id"],
+            "generation": "",
+            "prompt": {
+                "role": prompt["prompt"]["role"],
+                "message": prompt["prompt"]["message"],
+            }
+        }
+
+        if res.status_code == 200:
+            res_data = res.json()
+            if res_data["choices"]:
+                message: str = res_data["choices"][0]["message"]["content"]
+                result["generation"] = message
+
+        results.append(result)
+
+    return results
 
 
 def eval_iterating_code(lang, code, tests):
@@ -66,24 +99,30 @@ if __name__ == '__main__':
                         default=f'./datasets/cruxeval')
     parser.add_argument('--output_dir', type=str,
                         default='./datasets/cruxeval_iterated')
+    parser.add_argument('--http', type=str, default='')
     args = parser.parse_args()
 
-    model_name_or_path = f"{args.model_dir}/{args.model_name}"
+    use_http = bool(args.http)
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_name_or_path, trust_remote_code=True)
+    if not use_http:
+        model_name_or_path = f"{args.model_dir}/{args.model_name}"
 
-    # Create an LLM.
-    llm = LLM(
-        model=model_name_or_path,
-        pipeline_parallel_size=1,
-        tensor_parallel_size=1,
-        max_num_seqs=10,
-        max_num_batched_tokens=2048,
-        max_model_len=2048,
-        gpu_memory_utilization=0.85,
-        trust_remote_code=True
-    )
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name_or_path, trust_remote_code=True)
+
+        llm = LLM(
+            model=model_name_or_path,
+            pipeline_parallel_size=1,
+            tensor_parallel_size=1,
+            max_num_seqs=10,
+            max_num_batched_tokens=2048,
+            max_model_len=2048,
+            gpu_memory_utilization=0.85,
+            trust_remote_code=True
+        )
+    else:
+        tokenizer = None
+        llm = None
 
     langs = eval(args.langs)
     for lang in langs:
@@ -153,8 +192,13 @@ if __name__ == '__main__':
                 prompts.append({"prompt": prompt_gen, "task_id": index})
             # generate the code
             # {"task_id": XX, "generation": XX,"prompt": XX,"wholecode": XX}
-            gen_res = gen_result(prompts, tokenizer, llm,
-                                 lang, args.tmp, "chat")
+            if not use_http:
+                gen_res = gen_result(prompts, tokenizer, llm,
+                                     lang, args.tmp, "chat")
+            else:
+                gen_res = gen_result_http(
+                    prompts, args.http, args.model_name)
+
             for cur_res in gen_res:
                 cur_res["generation"] = cur_res["generation"].split(
                     f"```{lang}")[-1]

@@ -70,7 +70,8 @@ python dataset_build/5_iterating.py \
     --tests_dir ./datasets/cruxeval_preprocessed \
     --right_dir ./datasets/cruxeval_generated_repaired \
     --python_dir ./datasets/cruxeval \
-    --output_dir ./datasets/cruxeval_iterated
+    --output_dir ./datasets/cruxeval_iterated \
+    --http "$API_BASE_URL"
 
 echo 5_iterating done
 
