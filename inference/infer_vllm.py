@@ -3,22 +3,25 @@ import json
 from transformers import AutoTokenizer
 import argparse
 from datasets import load_dataset
-from prompt import crux_input_prompt,crux_output_prompt
-from untils import iterating_stops,eval_code,lang_map,input_map
+from prompt import crux_input_prompt, crux_output_prompt
+from untils import iterating_stops, eval_code, lang_map, input_map
 import json
 from tqdm import tqdm
 import os
 
+
 def read_data(file_path):
-    with open(file_path, 'r',encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     return data
+
 
 def gen_result(examples, tokenizer, llm, lang, model: str):
     stop = "[/ANSWER]"
     if "chat" in model:
         prompts = [
-            tokenizer.apply_chat_template(ex["prompt"], tokenize=False, add_generation_prompt=True)
+            tokenizer.apply_chat_template(
+                ex["prompt"], tokenize=False, add_generation_prompt=True)
             for ex in examples
         ]
     else:
@@ -37,19 +40,24 @@ def gen_result(examples, tokenizer, llm, lang, model: str):
         examples[i]['generation'] = outputs[i].outputs[0].text
     return examples
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--langs', type=str, default="['cpp']")
     parser.add_argument('--tot_data_num', type=int, default=800)
-    parser.add_argument('--model_name', type=str, default='WizardCoder-33B-V1.1')
+    parser.add_argument('--model_name', type=str,
+                        default='WizardCoder-33B-V1.1')
     parser.add_argument('--model_dir', type=str, default=f'./model')
-    parser.add_argument('--data_root', type=str, default=f'./datasets/cruxeval-x')
-    parser.add_argument('--data_input_output', type=str, default=f'./datasets/cruxeval_preprocessed')
-    parser.add_argument('--example_root', type=str, default=f'./datasets/examples')
-    parser.add_argument('--example_input_output', type=str, default=f'./datasets/examples_preprocessed')
+    parser.add_argument('--data_root', type=str,
+                        default=f'./datasets/cruxeval-x')
+    parser.add_argument('--data_input_output', type=str,
+                        default=f'./datasets/cruxeval_preprocessed')
+    parser.add_argument('--example_root', type=str,
+                        default=f'./datasets/examples')
+    parser.add_argument('--example_input_output', type=str,
+                        default=f'./datasets/examples_preprocessed')
     parser.add_argument('--output_dir', type=str, default=f'./infer_results')
     parser.add_argument('--codabench', type=bool, default=False)
-
 
     args = parser.parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
@@ -61,7 +69,8 @@ if __name__ == '__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name_or_path, trust_remote_code=True)
 
     # Create an LLM.
     llm = LLM(
@@ -78,20 +87,22 @@ if __name__ == '__main__':
     langs = eval(args.langs)
     for lang in langs:
         ds_data = read_data(f"{args.data_root}/{lang}.json")
-        ds_data_input_output = load_dataset("json",data_files=f"{args.data_input_output}/{lang}.jsonl")["train"]
+        ds_data_input_output = load_dataset(
+            "json", data_files=f"{args.data_input_output}/{lang}.jsonl")["train"]
         example_data = read_data(f"{args.example_root}/{lang}.json")
-        example_data_input_output = load_dataset("json",data_files=f"{args.example_input_output}/{lang}.jsonl")["train"]
-        ds_data_input_output = {"input":{i["id"]:i["input_reasoning"] for i in ds_data_input_output},
-                                "output":{i["id"]:i["output_reasoning"] for i in ds_data_input_output}}
-        example_data_input_output = {"input":{i["id"]:i["input_reasoning"] for i in example_data_input_output},
-                                    "output":{i["id"]:i["output_reasoning"] for i in example_data_input_output}}
+        example_data_input_output = load_dataset(
+            "json", data_files=f"{args.example_input_output}/{lang}.jsonl")["train"]
+        ds_data_input_output = {"input": {i["id"]: i["input_reasoning"] for i in ds_data_input_output},
+                                "output": {i["id"]: i["output_reasoning"] for i in ds_data_input_output}}
+        example_data_input_output = {"input": {i["id"]: i["input_reasoning"] for i in example_data_input_output},
+                                     "output": {i["id"]: i["output_reasoning"] for i in example_data_input_output}}
         prompt_func = {
-            "input":crux_input_prompt,
-            "output":crux_output_prompt
+            "input": crux_input_prompt,
+            "output": crux_output_prompt
         }
         prompts = {}
         # construct prompt
-        for task_type in ["input","output"]:
+        for task_type in ["input", "output"]:
             print(task_type)
             examples = []
             for example in example_data:
@@ -102,13 +113,16 @@ if __name__ == '__main__':
                         code = code.split(stop)[0]
                         flag = True
                         break
-                if not flag: assert Exception
+                if not flag:
+                    assert Exception
                 code_right_part = example_data_input_output[task_type][example["id"]]
-                examples.append({"code":code+code_right_part,"answer":example[f"{task_type}s"]})
+                examples.append({"code": code+code_right_part,
+                                "answer": example[f"{task_type}s"]})
 
-            cur_prompt = [] # {"prompt":prompt,"task_id":task_id}
+            cur_prompt = []  # {"prompt":prompt,"task_id":task_id}
             for sample in ds_data:
-                if "code" not in sample: continue
+                if "code" not in sample:
+                    continue
                 code = sample["code"]
                 flag = False
                 for stop in iterating_stops[lang]:
@@ -116,37 +130,42 @@ if __name__ == '__main__':
                         code = code.split(stop)[0]
                         flag = True
                         break
-                if not flag: assert Exception
+                if not flag:
+                    assert Exception
                 code_right_part = ds_data_input_output[task_type][sample["id"]]
                 code += code_right_part
-                cur_prompt.append({"prompt":prompt_func[task_type](lang,examples,code),
-                                   "task_id":sample["id"]})
+                cur_prompt.append({"prompt": prompt_func[task_type](lang, examples, code),
+                                   "task_id": sample["id"]})
             prompts[task_type] = cur_prompt
         # generate answers
-        for task_type in ["input","output"]:
+        for task_type in ["input", "output"]:
             cur_prompt = prompts[task_type]
-            gen_res = gen_result(cur_prompt,tokenizer,llm,lang,"no")
+            gen_res = gen_result(cur_prompt, tokenizer, llm, lang, "no")
             for cur_res in gen_res:
-                cur_res["generation"] = cur_res["generation"].replace("[ANSWER]","")
+                cur_res["generation"] = cur_res["generation"].replace(
+                    "[ANSWER]", "")
             # judege the answer
-            outputs = [{"id":i,"res":0} for i in range(args.tot_data_num)]
-            for index,cur_res in tqdm(enumerate(gen_res),total=len(gen_res)):
+            outputs = [{"id": i, "res": 0} for i in range(args.tot_data_num)]
+            for index, cur_res in tqdm(enumerate(gen_res), total=len(gen_res)):
                 answer = cur_res["generation"].strip()
                 cur_id = cur_res["task_id"]
                 code = cur_prompt[index]["prompt"].split(f"```{lang}")[-1]
-                code = code.replace(f"```","")
+                code = code.replace("```", "")
 
-                # judge weather calcultate the result
+                # judge whether to calcultate the result
                 if args.codabench:
                     del outputs[cur_id]["res"]
                     outputs[cur_id]["code"] = code
                     outputs[cur_id]["answer"] = answer
                 else:
                     if task_type == "output":
-                        code = code.replace("????",answer)
+                        code = code.replace("????", answer)
                     else:
-                        code = code.replace(input_map[lang], answer)
-                    exec_output = eval_code(lang_map[lang], code)
+                        if lang in input_map:
+                            code = code.replace(input_map[lang], answer)
+                    exec_output = eval_code(
+                        lang_map[lang] if lang in lang_map else lang,
+                        code)
                     if exec_output["status"] != "OK":
                         outputs[cur_id]["res"] = False
                         outputs[cur_id]["error"] = exec_output["status"]
@@ -157,6 +176,6 @@ if __name__ == '__main__':
                         outputs[cur_id]["res"] = True
                         outputs[cur_id]["code"] = code
                         outputs[cur_id]["answer"] = answer
-                    
-            with open(f"{output_dir}/{lang}_{task_type}.json","w",encoding="utf-8") as f:
-                json.dump(outputs,f,indent=4,ensure_ascii=False)
+
+            with open(f"{output_dir}/{lang}_{task_type}.json", "w", encoding="utf-8") as f:
+                json.dump(outputs, f, indent=4, ensure_ascii=False)
