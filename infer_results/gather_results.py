@@ -7,9 +7,10 @@ import re
 
 def gather_results_from_single_file(file: str):
     results = {
-        "true": 0,
-        "false": 0,
-        "0": 0,
+        "passed": 0,  # "res": true
+        "failed": 0,  # "res": false
+        "no_input": 0,  # "res": 0 (no input data in cruxeval-x dataset)
+        "pass_rate": 0.0,
     }
 
     if not exists(file):
@@ -17,14 +18,19 @@ def gather_results_from_single_file(file: str):
 
     with open(file) as f:
         data: list[dict] = json.load(f)
+
     for item in data:
         res = item["res"]
-        if res == True:
-            results["true"] += 1
-        elif res == False:
-            results["false"] += 1
+        if res is True:
+            results["passed"] += 1
+        elif res is False:
+            results["failed"] += 1
         elif res == 0:
-            results["0"] += 1
+            results["no_input"] += 1
+
+    total_cases = results["passed"] + results["failed"]
+    results["pass_rate"] = results["passed"] / total_cases \
+        if total_cases > 0 else 0
 
     return results
 
