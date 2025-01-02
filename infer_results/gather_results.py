@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import json
 from os import walk
-from os.path import abspath, basename, dirname, exists, join
+from os.path import abspath, basename, dirname, exists, join, normpath
 import re
 
 
@@ -101,14 +101,15 @@ def main():
     results = gather_results(args.dir)
 
     # save as json
+    input_dir = normpath(args.dir)
     json_save_path = abspath(join(dirname(__file__),
-                                  f"{basename(args.dir)}.json"))
+                                  f"{basename(input_dir)}.json"))
     save_results_as_json(results, json_save_path)
     print(f"Saved JSON results to: \"{json_save_path}\"")
 
     # save as csv
     tsv_save_path = abspath(join(dirname(__file__),
-                                 f"{basename(args.dir)}.tsv"))
+                                 f"{basename(input_dir)}.tsv"))
     save_results_as_tsv(results, tsv_save_path)
     print(f"Saved TSV results to: \"{tsv_save_path}\"")
 
